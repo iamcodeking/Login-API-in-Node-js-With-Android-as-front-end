@@ -18,6 +18,9 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,29 +47,29 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 pass=password.getText().toString();
                 user=username.getText().toString();
-                String url="http://192.168.29.32:8080/";
-                StringRequest stringRequest=new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                String url="http://192.168.29.32:3000/show";
+                Map <String,String> parmas=new HashMap<>();
+                parmas.put("name",user);
+                parmas.put("pass",pass);
+                JsonObjectRequest jsonObjectRequest=new JsonObjectRequest(Request.Method.POST, url,new JSONObject(parmas),new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(String response) {
-                        Toast.makeText(MainActivity.this, response, Toast.LENGTH_SHORT).show();
+                    public void onResponse(JSONObject response) {
+                        try {
+                            Toast.makeText(MainActivity.this, response.getString("message") , Toast.LENGTH_SHORT).show();
+                        } catch (JSONException e) {
+                            Toast.makeText(MainActivity.this, "no data", Toast.LENGTH_SHORT).show();
+                            }
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                }){
-                    @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
-                        Map <String,String> parmas=new HashMap<>();
-                        parmas.put("name",user);
-                        parmas.put("pass",pass);
-                        return super.getParams();
-                    }
-                };
+                });
+
                
                 RequestQueue requestQueue=Volley.newRequestQueue(getApplicationContext());
-                requestQueue.add(stringRequest);
+                requestQueue.add(jsonObjectRequest);
 
 
             }
